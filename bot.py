@@ -13,7 +13,21 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+# help_command=None deaktiviert den eingebauten Hilfe-Befehl,
+# damit unser eigener !help-Befehl unten ohne Konflikt funktioniert.
+bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
+
+# Cogs (Erweiterungen), die beim Start geladen werden
+INITIAL_EXTENSIONS = ['cogs.utility', 'cogs.claude_chat']
+
+@bot.event
+async def setup_hook():
+    for ext in INITIAL_EXTENSIONS:
+        try:
+            await bot.load_extension(ext)
+            print(f'✅ Erweiterung geladen: {ext}')
+        except Exception as e:
+            print(f'❌ Konnte {ext} nicht laden: {e}')
 
 @bot.event
 async def on_ready():
@@ -75,6 +89,9 @@ async def help_command(ctx):
     embed.add_field(name="!say <text>", value="Bot sagt etwas (Admin)", inline=False)
     embed.add_field(name="!userinfo [@user]", value="User Info", inline=False)
     embed.add_field(name="!serverinfo", value="Server Info", inline=False)
+    embed.add_field(name="!insta <username>", value="Instagram Profilbild", inline=False)
+    embed.add_field(name="!ai <nachricht>", value="Mit Claude chatten (oder Bot erwähnen)", inline=False)
+    embed.add_field(name="!reset", value="Claude-Gesprächsverlauf löschen", inline=False)
     await ctx.send(embed=embed)
 
 if __name__ == "__main__":
